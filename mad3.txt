@@ -1,0 +1,104 @@
+MAD Lab Program 3: 
+
+import 'package:flutter/material.dart'; 
+void main() { 
+runApp(const MyApp()); 
+} 
+class MyApp extends StatelessWidget { 
+const MyApp({super.key}); 
+@override 
+Widget build(BuildContext context) { 
+return MaterialApp( 
+debugShowCheckedModeBanner: false, 
+t
+ itle: 'Login Screen', 
+theme: ThemeData( 
+primarySwatch: Colors.blue, 
+), 
+home: const LoginScreen(), 
+); 
+} 
+} 
+class LoginScreen extends StatefulWidget { 
+const LoginScreen({super.key}); 
+@override 
+_LoginScreenState createState() => _LoginScreenState(); 
+} 
+class _LoginScreenState extends State<LoginScreen> { 
+f
+ inal TextEditingController _emailController = TextEditingController(); 
+f
+ inal TextEditingController _passwordController = TextEditingController(); 
+f
+ inal GlobalKey<FormState> _formKey = GlobalKey<FormState>(); 
+  void _login() { 
+    if (_formKey.currentState!.validate()) { 
+      // Perform login logic 
+      ScaffoldMessenger.of(context).showSnackBar( 
+        const SnackBar(content: Text('Logging in...')), 
+      ); 
+    } 
+  } 
+ 
+  @override 
+  Widget build(BuildContext context) { 
+    return Scaffold( 
+      appBar: AppBar( 
+        title: const Text('Login'), 
+      ), 
+      body: Padding( 
+        padding: const EdgeInsets.all(16.0), 
+        child: Form( 
+          key: _formKey, 
+          child: Column( 
+            mainAxisAlignment: MainAxisAlignment.center, 
+            children: [ 
+              TextFormField( 
+                controller: _emailController, 
+                decoration: const InputDecoration( 
+                  labelText: 'Email', 
+                  border: OutlineInputBorder(), 
+                ), 
+                validator: (value) { 
+                  if (value == null || value.isEmpty) { 
+                    return 'Please enter your email'; 
+                  } 
+                  if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+\$').hasMatch(value)) { 
+                    return 'Please enter a valid email'; 
+                  } 
+                  return null; 
+                }, 
+              ), 
+              const SizedBox(height: 16.0), 
+              TextFormField( 
+                controller: _passwordController, 
+                decoration: const InputDecoration( 
+                  labelText: 'Password', 
+                  border: OutlineInputBorder(), 
+                ), 
+                obscureText: true, 
+                validator: (value) { 
+                  if (value == null || value.isEmpty) { 
+                    return 'Please enter your password'; 
+                  } 
+                  if (value.length < 6) { 
+                    return 'Password must be at least 6 characters'; 
+                  } 
+                  return null; 
+                }, 
+              ), 
+              const SizedBox(height: 24.0), 
+              SizedBox( 
+                width: double.infinity, 
+                child: ElevatedButton( 
+                  onPressed: _login, 
+                  child: const Text('Login'), 
+                ), 
+              ), 
+            ], 
+          ), 
+        ), 
+      ), 
+    ); 
+  } 
+}
