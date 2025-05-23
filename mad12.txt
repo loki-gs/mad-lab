@@ -1,139 +1,119 @@
-mad program 12
-
-import 'package:flutter/material.dart'; 
-import 'package:fl_chart/fl_chart.dart'; 
- 
-void main() { 
-  runApp(ExpenseTrackerApp()); 
+Import ‘package:flutter/material.dart’; 
+Void main() { 
+runApp(QuizApp()); 
 } 
- 
-class Expense { 
-  final String title; 
-  final double amount; 
-  final DateTime date; 
- 
-  Expense({required this.title, required this.amount, required this.date}); 
+Class QuizApp extends StatelessWidget { 
+@override 
+Widget build(BuildContext context) { 
+Return MaterialApp( 
+Title: ‘Quiz App’, 
+Home: QuizPage(), 
+); 
 } 
+} 
+Class Question { 
+Final String questionText; 
+Final List<String> options; 
+Final int correctIndex; 
+Question(this.questionText, this.options, this.correctIndex); 
+} 
+Class QuizPage extends StatefulWidget { 
+@override 
+_QuizPageState createState() => _QuizPageState(); 
+} 
+Class _QuizPageState extends State<QuizPage> { 
+Final List<Question> _questions = [ 
+Question(“What is the capital of France?”, [“London”, “Berlin”, “Paris”, “Rome”], 
+2), 
+Question(“Which planet is known as the Red Planet?”, [“Earth”, “Mars”, “Jupiter”, 
+“Saturn”], 1), 
+Question(“What is 5 + 3?”, [“5”, “8”, “9”, “6”], 1), 
+]; 
+Int _currentIndex = 0; 
+Int _score = 0; 
+Void _answerQuestion(int selectedIndex) { 
+If (selectedIndex == _questions[_currentIndex].correctIndex) { 
+_score++; 
+} 
+If (_currentIndex < _questions.length – 1) { 
+      setState(() { 
+        _currentIndex++; 
+      }); 
+    } else { 
+      Navigator.pushReplacement( 
+        Context, 
+        MaterialPageRoute( 
+          Builder: (context) => ScorePage(score: _score, total: _questions.length), 
+        ), 
+      ); 
+    } 
+  } 
  
-class ExpenseTrackerApp extends StatelessWidget { 
   @override 
   Widget build(BuildContext context) { 
-    return MaterialApp( 
-      title: 'Expense Tracker', 
-      theme: ThemeData(primarySwatch: Colors.indigo), 
-      home: ExpenseHomePage(), 
-    ); 
-  } 
-} 
+    Var currentQuestion = _questions[_currentIndex]; 
  
-class ExpenseHomePage extends StatefulWidget { 
-  @override 
-  _ExpenseHomePageState createState() => _ExpenseHomePageState(); 
-} 
- 
-class _ExpenseHomePageState extends State<ExpenseHomePage> { 
-  final List<Expense> _expenses = []; 
- 
-  void _addExpense(String title, double amount) { 
-    final newExp = Expense( 
-      title: title, 
-      amount: amount, 
-      date: DateTime.now(), 
-    ); 
-    setState(() { 
-      _expenses.add(newExp); 
-    }); 
-  } 
- 
-  void _openAddDialog() { 
-    String title = ''; 
-    String amount = ''; 
-    showDialog( 
-      context: context, 
-      builder: (_) => AlertDialog( 
-        title: Text('Add Expense'), 
-        content: Column( 
-          mainAxisSize: MainAxisSize.min, 
+    Return Scaffold( 
+      appBar: AppBar(title: Text(‘Quiz App’)), 
+      body: Padding( 
+        padding: const EdgeInsets.all(20.0), 
+        child: Column( 
+          crossAxisAlignment: CrossAxisAlignment.start, 
           children: [ 
-            TextField( 
-              decoration: InputDecoration(labelText: 'Title'), 
-              onChanged: (val) => title = val, 
+            Text( 
+              ‘Question ${_currentIndex + 1}/${_questions.length}’, 
+              Style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold), 
             ), 
-            TextField( 
-              decoration: InputDecoration(labelText: 'Amount'), 
-              keyboardType: TextInputType.number, 
-              onChanged: (val) => amount = val, 
+            SizedBox(height: 20), 
+            Text( 
+              currentQuestion.questionText, 
+              style: TextStyle(fontSize: 20), 
+            ), 
+            SizedBox(height: 20), 
+            ...currentQuestion.options.asMap().entries.map((entry) { 
+              Int idx = entry.key; 
+              String text = entry.value; 
+              Return ElevatedButton( 
+                onPressed: () => _answerQuestion(idx), 
+                child: Text(text), 
+              ); 
+            }), 
+          ], 
+        ), 
+      ), 
+    ); 
+  } 
+} 
+ 
+Class ScorePage extends StatelessWidget { 
+  Final int score; 
+  Final int total; 
+ 
+  Const ScorePage({required this.score, required this.total}); 
+ 
+  @override 
+  Widget build(BuildContext context) { 
+    Return Scaffold( 
+      appBar: AppBar(title: Text(‘Score Board’)), 
+      body: Center( 
+        child: Column( 
+          mainAxisAlignment: MainAxisAlignment.center, 
+          children: [ 
+            Text(‘Your Score:’, style: TextStyle(fontSize: 26)), 
+            Text(‘$score / $total’, style: TextStyle(fontSize: 40, fontWeight: 
+FontWeight.bold)), 
+            SizedBox(height: 30), 
+            ElevatedButton( 
+              onPressed: () { 
+                Navigator.pushReplacement( 
+                  Context, 
+                  MaterialPageRoute(builder: (context) => QuizPage()), 
+                ); 
+              }, 
+              Child: Text(‘Restart Quiz’), 
             ), 
           ], 
         ), 
-        actions: [ 
-          TextButton( 
-            onPressed: () { 
-              if (title.isNotEmpty && double.tryParse(amount) != null) { 
-                _addExpense(title, double.parse(amount)); 
-              } 
-              Navigator.of(context).pop(); 
-            }, 
-            child: Text('Add'), 
-          ) 
-        ], 
-      ), 
-    ); 
-  } 
- 
-  List<BarChartGroupData> _getChartData() { 
-    Map<String, double> dailyTotals = {}; 
-    for (var exp in _expenses) { 
-      String date = "${exp.date.day}/${exp.date.month}"; 
-      dailyTotals[date] = (dailyTotals[date] ?? 0) + exp.amount; 
-    } 
- 
-    int index = 0; 
-    return dailyTotals.entries.map((entry) { 
-      return BarChartGroupData( 
-        x: index++, 
-        barRods: [ 
-          BarChartRodData(toY: entry.value, color: Colors.indigo, width: 16) 
-        ], 
-        showingTooltipIndicators: [0], 
-      ); 
-    }).toList(); 
-  } 
- 
-  @override 
-  Widget build(BuildContext context) { 
-    final chartData = _getChartData(); 
-    return Scaffold( 
-      appBar: AppBar(title: Text('Expense Tracker')), 
-      floatingActionButton: FloatingActionButton( 
-        onPressed: _openAddDialog, 
-        child: Icon(Icons.add), 
-      ), 
-      body: Column( 
-        children: [ 
-          SizedBox( 
-            height: 200, 
-            child: Padding( 
-              padding: const EdgeInsets.all(16.0), 
-              child: BarChart( 
-                BarChartData( 
-                  titlesData: FlTitlesData(show: false), 
-                  barGroups: chartData, 
-                ), 
-              ), 
-            ), 
-          ), 
-          Expanded( 
-            child: ListView.builder( 
-              itemCount: _expenses.length, 
-              itemBuilder: (ctx, i) => ListTile( 
-                title: Text(_expenses[i].title), 
-                subtitle: Text(_expenses[i].date.toString()), 
-                trailing: Text("₹${_expenses[i].amount.toStringAsFixed(2)}"), 
-              ), 
-            ), 
-          ) 
-        ], 
       ), 
     ); 
   } 
